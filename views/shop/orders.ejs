@@ -6,21 +6,21 @@
         <main>
             <% if (orders.length) { %>
                 <ul>
-                    <%  orders.forEach(order => { %>
+                    <% orders.forEach(order => { %>
                         <li>
-                            <h1><%= order.id %></h1>
+                            <h1><%= order._id %></h1>
                             <ul>
-                                <% order.products.forEach(p => { %>
+                                <% order.items.forEach(p => { %>
                                     <li>
                                         <%= p.title %>
-                                        (<%= p.orderItem.quantity %>)
+                                        (<%= p.quantity %>)
                                     </li>
-                                <% })%>
+                                <% }); %>
                             </ul>
                         </li>
-                    <% }) %>
+                    <% }); %>
                 </ul>
-            <% else { %>
+            <% } else { %>
                 <h1>Nothing there!</h1>
             <% } %>
         </main>

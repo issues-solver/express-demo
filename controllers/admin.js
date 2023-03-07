@@ -1,4 +1,7 @@
+const mongodb = require('mongodb');
 const Product = require("../models/product");
+
+const ObjectId = mongodb.ObjectId;
 
 const getAddProduct = (req, res, next) => {
     res.render('admin/edit-product', {
@@ -10,16 +13,18 @@ const getAddProduct = (req, res, next) => {
 
 const postAddProduct = (req, res, next) => {
     const { title, imageUrl, price, description  } = req.body;
-    // Product.create({ title, imageUrl, price, description, userId: req.user.id })
-    req.user.createProduct({ title, imageUrl, price, description })
+    const product = new Product(title, imageUrl, price, description, null, req.user._id);
+    product.save()
         .then(() => res.redirect('/admin/products'));
+    // Product.create({ title, imageUrl, price, description, userId: req.user.id })
+    // req.user.createProduct({ title, imageUrl, price, description })
+    //     .then(() => res.redirect('/admin/products'));
 };
 
 const getEditProduct = (req, res, next) => {
     const { productId } = req.params;
     const { edit } = req.query;
-    // req.user.getProducts({ where: { id: productId } }) => [products][0] instead of single product
-    Product.findByPk(productId)
+    Product.findById(productId)
         .then((product) => {
             if (!product) {
                 return res.redirect('/');
@@ -35,30 +40,24 @@ const getEditProduct = (req, res, next) => {
 
 const postEditProduct = (req, res, next) => {
   const { title, imageUrl, price, description, productId } = req.body;
-  Product.findByPk(productId)
-      .then((product) => {
-          product.title = title;
-          product.imageUrl = imageUrl;
-          product.price = price;
-          product.description = description;
-          return product.save();
-      })
-      .then(() => {
-          res.redirect('/admin/products');
-      });
+    const product = new Product(
+        title,
+        imageUrl,
+        price,
+        description,
+        productId);
+    return product.save()
+        .then(() => res.redirect('/admin/products'));
 };
 
 const postDeleteProduct = (req, res, next) => {
     const { productId } = req.body;
-    // Product.findByPk(productId)
-    //     .then((product) => product.destroy())
-    //     .then(() => res.redirect('/admin/products'));
-    Product.destroy({ where: { id: productId } })
+    Product.delete(productId)
         .then(() => res.redirect('/admin/products'));
 }
 
 const getProducts = (req, res, next) => {
-    req.user.getProducts()
+    Product.fetchAll()
         .then((products) => {
             res.render('admin/products', {
                 prods: products,
