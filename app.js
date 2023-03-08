@@ -8,7 +8,7 @@ const shopRoutes = require('./routes/shop');
 
 const errorController = require('./controllers/error');
 
-// const User = require('./models/user');
+const User = require('./models/user');
 
 const app = express();
 
@@ -23,14 +23,13 @@ app.set('views', 'views');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
-//
-// app.use((req, res, next) => {
-//     User.findById('64034fcf2e5bbf21c9f470d8').then((user) => {
-//         const { name, email, cart, _id } = user;
-//         req.user = new User(name, email, cart, _id);
-//         next();
-//     });
-// });
+
+app.use((req, res, next) => {
+    User.findById('6408611e14027852a180c270').then((user) => {
+        req.user = user;
+        next();
+    });
+});
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
@@ -38,4 +37,18 @@ app.use(shopRoutes);
 app.use(errorController.getPageNotFound);
 
 mongoose.connect(getMongoDbUrl())
+    .then(() => User.findOne())
+    .then((user) => {
+        if (!user) {
+            const user = new User({
+                name: 'Siarhei',
+                email: 'test@mail.com',
+                cart: {
+                    items: []
+                }
+            });
+            return user.save();
+        }
+        return user;
+    })
     .then(() => app.listen(4200));

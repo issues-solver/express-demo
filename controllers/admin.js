@@ -12,8 +12,9 @@ const getAddProduct = (req, res, next) => {
 };
 
 const postAddProduct = (req, res, next) => {
-    const { title, imageUrl, price, description  } = req.body;
-    const product = new Product({ title, imageUrl, price, description });
+    const { title, imageUrl, price, description } = req.body;
+    const userId = req.user._id;
+    const product = new Product({ title, imageUrl, price, description, userId });
     product.save()
         .then(() => res.redirect('/admin/products'));
 };
@@ -56,7 +57,10 @@ const postDeleteProduct = (req, res, next) => {
 
 const getProducts = (req, res, next) => {
     Product.find()
+        // .select('title price -_id')
+        // .populate('userId', 'name')
         .then((products) => {
+            console.log(products);
             res.render('admin/products', {
                 prods: products,
                 docTitle: 'Admin Products',
